@@ -1,0 +1,40 @@
+ARG DEBIAN_DIST=bookworm
+FROM debian:$DEBIAN_DIST
+
+ARG DEBIAN_DIST
+ARG lazyjira_VERSION
+ARG BUILD_VERSION
+ARG FULL_VERSION
+ARG ARCH
+ARG LJ_RELEASE
+
+RUN mkdir -p /output/usr/bin
+RUN mkdir -p /output/usr/share/doc/lazyjira/docs
+RUN mkdir -p /output/DEBIAN
+
+COPY ${LJ_RELEASE}/lazyjira /output/usr/bin/lazyjira
+RUN chmod 755 /output/usr/bin/lazyjira
+COPY output/DEBIAN/control /output/DEBIAN/
+COPY output/DEBIAN/postinst /output/DEBIAN/postinst
+RUN chmod 755 /output/DEBIAN/postinst
+COPY output/copyright /output/usr/share/doc/lazyjira/
+COPY output/changelog.Debian /output/usr/share/doc/lazyjira/
+COPY output/README.md /output/usr/share/doc/lazyjira/
+# Upstream changelog from the release tarball, and the docs fetched by
+# build_*.sh from the tag; both are architecture independent.
+COPY ${LJ_RELEASE}/CHANGELOG.md /output/usr/share/doc/lazyjira/changelog
+COPY docs/ /output/usr/share/doc/lazyjira/docs/
+# The files copied in from the build host inherit its umask; normalise them
+# so the package never ships group-writable files.
+RUN find /output/usr/share/doc/lazyjira -type d -exec chmod 755 {} + \
+    && find /output/usr/share/doc/lazyjira -type f -exec chmod 644 {} +
+RUN gzip -9n /output/usr/share/doc/lazyjira/changelog
+
+RUN sed -i "s/DIST/$DEBIAN_DIST/" /output/usr/share/doc/lazyjira/changelog.Debian
+RUN sed -i "s/FULL_VERSION/$FULL_VERSION/" /output/usr/share/doc/lazyjira/changelog.Debian
+RUN sed -i "s/DIST/$DEBIAN_DIST/" /output/DEBIAN/control
+RUN sed -i "s/lazyjira_VERSION/$lazyjira_VERSION/" /output/DEBIAN/control
+RUN sed -i "s/BUILD_VERSION/$BUILD_VERSION/" /output/DEBIAN/control
+RUN sed -i "s/SUPPORTED_ARCHITECTURES/$ARCH/" /output/DEBIAN/control
+
+RUN dpkg-deb --build /output /lazyjira_${FULL_VERSION}.deb

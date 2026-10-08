@@ -1,0 +1,18 @@
+# .deb Packages
+*.deb
+
+# Source packages
+*.dsc
+*.orig.tar.gz
+*.debian.tar.xz
+
+# Downloaded / extracted upstream release artifacts
+lazyjira_linux_*/
+lazyjira_linux_*.tar.gz
+/docs/
+/usr/
+/DEBIAN/
+.lazyjira_release_name
+
+.idea/*
+.DS_Store

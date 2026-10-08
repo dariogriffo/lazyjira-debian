@@ -1,0 +1,24 @@
+Source: lazyjira
+Section: devel
+Priority: optional
+Maintainer: Dario Griffo <dariogriffo@gmail.com>
+Homepage: https://github.com/textfuel/lazyjira
+Package: lazyjira
+Version: lazyjira_VERSION-BUILD_VERSION~DIST
+Architecture: SUPPORTED_ARCHITECTURES
+Suggests: git, xclip, xdg-utils
+Description: terminal UI for Jira, in the style of lazygit
+ lazyjira is a fast, keyboard-driven terminal user interface for Jira Cloud
+ and Jira Server/Data Center, modelled on lazygit. A four-panel layout shows
+ issues, projects, the selected issue and its status side by side, with
+ vim-style navigation and mouse support.
+ .
+ It offers JQL search with autocomplete, highlighting and history, and inline
+ editing of transitions, priority, assignee, labels, comments and descriptions
+ (in $EDITOR), as well as issue creation. Keybindings, JQL tabs, issue columns,
+ custom fields and colour themes are configurable. The first run starts a
+ setup wizard for the Jira connection.
+ .
+ The optional helpers are only suggested: git enables creating and checking
+ out branches named after issues, xclip enables copying to the clipboard and
+ xdg-utils enables opening issues in the web browser.

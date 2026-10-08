@@ -1,0 +1,89 @@
+lazyjira (FULL_VERSION) DIST; urgency=low
+
+  ## [2.19.2] - 2026-07-08
+
+  ### Fixed
+
+  - Nix: importing the package outside a flake now works, and cross compilation
+  is possible. `nix/package.nix` used to import `nixpkgs` without a `system`,
+  which broke every manual import. It now takes `lib` and `buildGoApplication`
+  as inputs instead of importing `nixpkgs` itself, and a new
+  `nix/build-go-application.nix` resolves `buildGoApplication` from the pinned
+  `flake.lock` for non flake users (#103)
+
+  ## [2.19.1] - 2026-07-02
+
+  ### Added
+
+  - Nix: Create a standalone `lazyjira` package and shell for non flake user
+  (#96)
+
+  ### Fixed
+
+  - Confirming a search in the issue list now moves the preview and the current
+  issue to the ticket the cursor lands on, routing the selection through the
+  same path as normal navigation. Actions taken right after a search target the
+  searched ticket instead of the one that was selected before the search (#104)
+
+  ## [2.19.0] - 2026-06-22
+
+  ### Added
+
+  - `@Name` in a comment or description now resolves to a real Jira mention on
+  submit when exactly one user of the issue's project matches that name. Other
+  names stay as literal text, code spans and fenced blocks are left untouched,
+  and existing mentions are not rewritten. This is Cloud only, Data Center
+  writes are unchanged. When the project's user cache is still cold the write
+  is deferred one tick to fetch users, falling back to literal text on error
+  (#95)
+
+  ## [2.18.0] - 2026-06-19
+
+  ### Added
+
+  - Color themes with optional auto-detection. `gui.theme` selects a bundled
+  palette: the original `default` ANSI 16 look, or the Catppuccin presets
+  `catppuccin-latte` (light), `catppuccin-frappe`, `catppuccin-macchiato` and
+  `catppuccin-mocha` (dark). `theme: auto` inspects the terminal background at
+  startup and picks `catppuccin-mocha` or `catppuccin-latte` to match. Omitting
+  the key or leaving it empty keeps the legacy ANSI 16 palette, so existing
+  configs are unchanged. An unknown name is an error, and hex-based presets
+  need a truecolor terminal (#88)
+  - Per-color palette overrides on top of any preset, through three optional
+  maps. `themeColors` applies to every preset, while `themeDark` and
+  `themeLight` apply only on dark or light variants, so a single `auto` config
+  can carry both. Precedence is preset, then `themeColors`, then `themeDark` or
+  `themeLight`. Ten keys are overridable (`green`, `blue`, `red`, `yellow`,
+  `cyan`, `magenta`, `orange`, `white`, `gray`, `highlight`) and accept hex,
+  ANSI 16 or ANSI 256 values. Unknown keys and empty values are ignored, and an
+  unrecognized color falls back to the terminal default with a warning shown
+  under `--debug` (#88)
+
+  ## [2.17.0] - 2026-06-15
+
+  ### Added
+
+  - Create subtasks under the selected issue, from the task list and the Info
+  panel's Sub tab. The parent is set automatically and the type picker is
+  limited to subtask types. The action appears only where a subtask is valid,
+  so epics and existing subtasks are excluded. The key is configurable like the
+  other issue actions (#94)
+
+  ### Changed
+
+  - The create form now names which required fields are still empty on submit,
+  instead of only counting them, so it is clear what to fill in before the
+  request goes out (#94)
+  - Reporter is now pre-filled with the current user when creating an issue or
+  subtask, matching Jira's own create defaults. It can still be changed or
+  cleared (#94)
+  - Create errors now split into pre-form and submit stages. A failed fetch of
+  the parent's issue types aborts with a readable message instead of opening an
+  empty form, while submit errors stay inline. Messages carry Jira's own error
+  text instead of an internal request wrapper (#94)
+
+  Older entries have been trimmed. The complete upstream changelog is
+  installed as /usr/share/doc/lazyjira/changelog.gz and lives at
+  https://github.com/textfuel/lazyjira/blob/main/CHANGELOG.md
+
+ -- Dario Griffo <dariogriffo@gmail.com>  Thu, 08 Oct 2026 09:47:25 +0100

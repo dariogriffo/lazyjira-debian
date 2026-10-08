@@ -1,0 +1,53 @@
+#!/usr/bin/make -f
+DEB_HOST_ARCH ?= $(shell dpkg-architecture -qDEB_HOST_ARCH)
+LAZYJIRA_VERSION := $(shell dpkg-parsechangelog -S Version | sed 's/[-~].*//')
+
+%:
+	dh $@
+
+override_dh_auto_configure:
+
+# Upstream tags carry a "v" prefix (e.g. v2.19.2) and the Linux release assets
+# are named lazyjira_linux_<arch>.tar.gz, after the Go/Debian architecture
+# spelling (amd64, arm64), so no mapping table is needed. Both Linux binaries
+# are statically linked (CGO_ENABLED=0), which is why the package declares no
+# libc dependency and dh_shlibdeps is disabled. The binary is fetched from the
+# release; the docs and upstream changelog come from the orig tarball.
+override_dh_auto_build:
+	@arch="$(DEB_HOST_ARCH)"; \
+	case "$$arch" in \
+		amd64|arm64) ;; \
+		*) echo "Unsupported architecture: $$arch"; exit 1 ;; \
+	esac; \
+	LJ_RELEASE="lazyjira_linux_$$arch"; \
+	echo "Downloading $$LJ_RELEASE for $(LAZYJIRA_VERSION)..."; \
+	wget -q "https://github.com/textfuel/lazyjira/releases/download/v$(LAZYJIRA_VERSION)/$$LJ_RELEASE.tar.gz"; \
+	rm -rf "$$LJ_RELEASE"; \
+	mkdir -p "$$LJ_RELEASE"; \
+	tar -xf "$$LJ_RELEASE.tar.gz" -C "$$LJ_RELEASE"; \
+	rm -f "$$LJ_RELEASE.tar.gz"; \
+	test -f "$$LJ_RELEASE/lazyjira" || { echo "Unexpected tarball layout for $$LJ_RELEASE"; exit 1; }; \
+	chmod +x "$$LJ_RELEASE/lazyjira"; \
+	echo "$$LJ_RELEASE" > .lazyjira_release_name
+
+override_dh_auto_install:
+	@LJ_RELEASE=$$(cat .lazyjira_release_name); \
+	install -D -m 755 "$$LJ_RELEASE/lazyjira" debian/lazyjira/usr/bin/lazyjira; \
+	install -D -m 644 -t debian/lazyjira/usr/share/doc/lazyjira/docs docs/Config.md docs/Keybindings.md docs/Custom_Fields.md
+
+override_dh_installchangelogs:
+	dh_installchangelogs CHANGELOG.md
+
+override_dh_auto_test:
+
+override_dh_auto_clean:
+	@if [ -f .lazyjira_release_name ]; then \
+		LJ_RELEASE=$$(cat .lazyjira_release_name); \
+		rm -rf "$$LJ_RELEASE" .lazyjira_release_name || true; \
+	fi
+
+override_dh_strip:
+
+override_dh_dwz:
+
+override_dh_shlibdeps:
