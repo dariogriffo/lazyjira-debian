@@ -4,7 +4,7 @@ Priority: optional
 Maintainer: Dario Griffo <dariogriffo@gmail.com>
 Homepage: https://github.com/textfuel/lazyjira
 Package: lazyjira
-Version: lazyjira_VERSION-BUILD_VERSION~DIST
+Version: lazyjira_VERSION-BUILD_VERSION~griffo
 Architecture: SUPPORTED_ARCHITECTURES
 Suggests: git, xclip, xdg-utils
 Description: terminal UI for Jira, in the style of lazygit
